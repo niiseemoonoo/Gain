@@ -125,7 +125,7 @@ void initialiseModifiers()
 initialiseModifiers();
 
 //FIXME support asdon
-string __gain_version = "1.1.1";
+string __gain_version = "1.3.0";
 boolean __gain_setting_confirm = false;
 
 boolean [item] __modify_blocked_items;
