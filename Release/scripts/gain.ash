@@ -125,7 +125,7 @@ void initialiseModifiers()
 initialiseModifiers();
 
 //FIXME support asdon
-string __gain_version = "1.3.0";
+string __gain_version = "1.3.1";
 boolean __gain_setting_confirm = false;
 
 boolean [item] __modify_blocked_items;
@@ -751,7 +751,7 @@ void ModifierUpkeepEffects(ModifierUpkeepSettings settings)
 				break;
 			}
 			if (!__setting_silent)
-				print_html(entry.ModifierUpkeepEntryDescription(settings.modifier_name) + ": " + round(entry_efficiency*1000)/1000.0 + " efficiency");
+				print_html("(meat_cost: " + meat_cost + ") " + entry.ModifierUpkeepEntryDescription(settings.modifier_name) + ": " + round(entry_efficiency*1000)/1000.0 + " efficiency");
 			
 			if (__gain_setting_confirm)
 			{
