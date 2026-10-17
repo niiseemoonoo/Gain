@@ -125,7 +125,7 @@ void initialiseModifiers()
 initialiseModifiers();
 
 //FIXME support asdon
-string __gain_version = "1.3.1";
+string __gain_version = "1.3.2";
 boolean __gain_setting_confirm = false;
 
 boolean [item] __modify_blocked_items;
@@ -141,6 +141,8 @@ boolean __setting_allow_limited_buffs = false;
 boolean __setting_simulation_only = false;
 float[string] __simulation_modifier_bonus;
 buffer __simulation_output;
+int __simulation_effect_min_turns = 999999999; // something "large", lol
+int __simulation_effect_max_turns = -1;
 
 int __starting_meat = -1;
 int __meat_spent = 0;
@@ -446,6 +448,9 @@ void SimulateBuff(string modifier_name, float value)
 
 void SimulateModifierUpkeep(ModifierUpkeepEntry entry, ModifierUpkeepSettings settings, int qty)
 {
+    int num_turns_gained = qty * entry.turns_gotten_from_source;
+	__simulation_effect_min_turns = MIN(__simulation_effect_min_turns, num_turns_gained);
+	__simulation_effect_max_turns = MAX(__simulation_effect_max_turns, num_turns_gained);
 
 	if (have_effect(entry.e) == 0) {
 		foreach _, modifier_name in GetAllModifiers(entry.e) {
@@ -751,7 +756,7 @@ void ModifierUpkeepEffects(ModifierUpkeepSettings settings)
 				break;
 			}
 			if (!__setting_silent)
-				print_html("(meat_cost: " + meat_cost + ") " + entry.ModifierUpkeepEntryDescription(settings.modifier_name) + ": " + round(entry_efficiency*1000)/1000.0 + " efficiency");
+				print_html("(meat: " + meat_cost + ") " + entry.ModifierUpkeepEntryDescription(settings.modifier_name) + ": " + round(entry_efficiency*1000)/1000.0 + " efficiency");
 			
 			if (__gain_setting_confirm)
 			{
@@ -846,6 +851,7 @@ void ModifierUpkeepEffects(ModifierUpkeepSettings settings)
 				dynamic_blocked_effects[entry.e] = true;
 			}
 			__meat_spent += meat_cost * amount;
+			
 			did_execute_one = true;
 			break;
 		}
@@ -1025,7 +1031,7 @@ void main(string arguments)
 	blockLimitedBuffs();
 	if (!__setting_silent)
 		print_html("Gain v" + __gain_version);
-	if (__maximum_meat_to_spend != 100000 && !__setting_silent)
+	if (!__setting_silent)
 		print_html("Spending up to " + __maximum_meat_to_spend + " meat.");
 	if (maximum_efficiency_known && !__setting_silent)
 		print_html(maximum_efficiency + " efficiency");
@@ -1088,7 +1094,8 @@ void main(string arguments)
 		print_html("<\br>Execute:");
 		print(__simulation_output);
 		print("===========");
-		print_html("Estimated cost: " + __meat_spent + " meat  ( " + __meat_spent/desired_min_turns + "/turn )");
+		print_html("Estimated cost: " + __meat_spent + " meat  (" + __meat_spent/desired_min_turns + "/turn )");
+		print_html("Estimated turns gained range from [" + __simulation_effect_min_turns +" min to " + __simulation_effect_max_turns + " max]");
 	}
 	
 }
